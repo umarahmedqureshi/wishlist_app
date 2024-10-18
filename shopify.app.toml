@@ -3,7 +3,7 @@
 client_id = "0638e04587149d5b1a8fa61f45d55948"
 name = "enspire"
 handle = "enspire"
-application_url = "https://warehouse-horizon-race-students.trycloudflare.com"
+application_url = "https://bingo-matter-messenger-audit.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://warehouse-horizon-race-students.trycloudflare.com/auth/callback",
-  "https://warehouse-horizon-race-students.trycloudflare.com/auth/shopify/callback",
-  "https://warehouse-horizon-race-students.trycloudflare.com/api/auth/callback"
+  "https://bingo-matter-messenger-audit.trycloudflare.com/auth/callback",
+  "https://bingo-matter-messenger-audit.trycloudflare.com/auth/shopify/callback",
+  "https://bingo-matter-messenger-audit.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
