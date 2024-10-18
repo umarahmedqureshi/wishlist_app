@@ -3,7 +3,7 @@
 client_id = "0638e04587149d5b1a8fa61f45d55948"
 name = "enspire"
 handle = "enspire"
-application_url = "https://acdbentity-flesh-misc-cards.trycloudflare.com"
+application_url = "https://hungarian-international-centered-combo.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://acdbentity-flesh-misc-cards.trycloudflare.com/auth/callback",
-  "https://acdbentity-flesh-misc-cards.trycloudflare.com/auth/shopify/callback",
-  "https://acdbentity-flesh-misc-cards.trycloudflare.com/api/auth/callback"
+  "https://hungarian-international-centered-combo.trycloudflare.com/auth/callback",
+  "https://hungarian-international-centered-combo.trycloudflare.com/auth/shopify/callback",
+  "https://hungarian-international-centered-combo.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
