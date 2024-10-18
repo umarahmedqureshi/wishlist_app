@@ -1,6 +1,5 @@
 import "@shopify/shopify-app-remix/adapters/node";
 import {
-  ApiVersion,
   AppDistribution,
   shopifyApp,
   LATEST_API_VERSION,

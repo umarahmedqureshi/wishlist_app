@@ -12,6 +12,7 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { json } from "@remix-run/node";
 import { useState } from "react";
 import { useLoaderData, Form } from "@remix-run/react";
+import { authenticate } from "../shopify.server";
 import db from "../db.server";
 
 export async function loader({ request}) {

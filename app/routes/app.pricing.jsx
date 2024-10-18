@@ -17,6 +17,7 @@ import { authenticate, MONTHLY_PLAN, ANNUAL_PLAN } from "../shopify.server";
 import {
   CheckIcon
 } from '@shopify/polaris-icons'
+import { useState, useEffect } from "react";
 
 export async function loader({ request }) {
   const { billing } = await authenticate.admin(request);
@@ -84,28 +85,33 @@ let planData = [
 
 export default function PricingPage() {
   const { plan } = useLoaderData();
+  const [isPro, setIsPro] = useState(false);
 
-  console.log('plan', plan);
+  useEffect(() => {
+    setIsPro(plan.name === "Monthly subscription");
+  }, [plan.name]);
+
+  console.log('plan check krna hhh  ==>> ', plan);
   return (
     <Page>
       <ui-title-bar title="Pricing" />
       <CalloutCard
-          title="Change your plan"
-          illustration="https://cdn.shopify.com/s/files/1/0583/6465/7734/files/tag.png?v=1705280535"
-          primaryAction={{
-            content: 'Cancel Plan',
-            url: '/app/cancel',
-          }}
-        >
-          { plan.name == "Monthly subscription" ? (
-            <p>
-              You're currently on pro plan. All features are unlocked.
-            </p>
-          ) : (
-            <p>
-              You're currently on free plan. Upgrade to pro to unlock more features.
-            </p>
-          )}
+        title="Change your plan"
+        illustration="https://cdn.shopify.com/s/files/1/0583/6465/7734/files/tag.png?v=1705280535"
+        primaryAction={{
+          content: isPro ? "Cancel Plan" : "Upgrade Now",
+          url:  isPro ? '/app/cancel' : '/app/upgrade',
+        }}
+      >
+        { plan.name == "Monthly subscription" ?(
+             <p>
+            You're currently on pro plan. All features are unlocked.
+          </p>
+        ) : (
+          <p>
+            You're currently on free plan. Upgrade to pro to unlock more features.
+          </p>
+        )}
       </CalloutCard>
 
       <div style={{ margin: "0.5rem 0"}}>
@@ -113,7 +119,6 @@ export default function PricingPage() {
       </div>
 
       <Grid>
-
         {planData.map((plan_item, index) => (
           <Grid.Cell key={index} columnSpan={{xs: 6, sm: 3, md: 3, lg: 6, xl: 6}}>
             <Card background={ plan_item.name == plan.name ? "bg-surface-success" : "bg-surface" } sectioned>
@@ -166,9 +171,7 @@ export default function PricingPage() {
             </Card>
           </Grid.Cell>
         ))}
-
       </Grid>
-
     </Page>
   );
 }

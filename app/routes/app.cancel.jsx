@@ -10,7 +10,7 @@ export const loader = async ({ request }) => {
   });
 
   const subscription = billingCheck.appSubscriptions[0];
-  const cancelledSubscription = await billing.cancel({
+  await billing.cancel({
     subscriptionId: subscription.id,
     isTest: true,
     prorate: true,
