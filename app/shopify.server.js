@@ -13,8 +13,6 @@ import prisma from "./db.server";
 export const MONTHLY_PLAN = 'Monthly subscription';
 export const ANNUAL_PLAN = 'Annual subscription';
 
-console.log("LATEST_API_VERSION :jfakfnwjfejn",LATEST_API_VERSION);
-console.log("ApiVersion: jirfjnsgsjf",ApiVersion);
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
