@@ -91,7 +91,7 @@ export default function PricingPage() {
     setIsPro(plan.name === "Monthly subscription");
   }, [plan.name]);
 
-  console.log('plan check krna hhh  ==>> ', plan);
+  console.log('current plan ==>> ', plan);
   return (
     <Page>
       <ui-title-bar title="Pricing" />

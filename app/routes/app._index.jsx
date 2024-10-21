@@ -20,7 +20,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
   const shop = auth.session.shop;
-  console.log("shop: ", shop);
+  // console.log("shop: ", shop);
 
   const wishlistData = await db.wishlist.findMany({
     where: {
@@ -31,7 +31,7 @@ export const loader = async ({ request }) => {
     },
   });
 
-  console.log("wishlistedData: ", wishlistData);
+  // console.log("wishlistedData: ", wishlistData);
   return json(wishlistData);
 };
 
