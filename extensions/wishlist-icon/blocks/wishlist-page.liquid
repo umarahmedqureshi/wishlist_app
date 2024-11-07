@@ -1,0 +1,214 @@
+{% if page.handle == 'wishlist2' %}
+<style>
+  h1.main-page-title { display: none; }
+  /* Styling the wishlist page */
+  .wishlist-page { text-align: center; }  /* max-width: 800px; margin: 0 auto; */
+  .wishlist-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Each item will take up to 250px */
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .wishlist-product {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: left;
+  }
+  .product-image {
+    max-width: 100%;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+  }
+  .product-title { font-weight: bold; margin-bottom: 0.5rem; }/* font-size: 1.2rem; */
+  /* .product-price { color: #333; font-weight: bold; margin-bottom: 0.5rem; } */
+  /* .remove-button {
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  } */
+  .remove-button {
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    bottom: 92%;
+    position: relative;
+    left: 88%;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+  }
+  .loading { font-size: 1.2rem; color: #333; }
+  .empty-message { font-size: 1.2rem; color: #555; margin-top: 1rem; }
+</style>
+
+<div class="wishlist-page page-width" x-data="wishlistPage">
+  <h1>Your Wishlist</h1>
+
+  <!-- Loading indicator -->
+  <div x-show="loading" class="loading">Loading...</div>
+  
+  <!-- No Customer message -->
+  <div x-show="!loading && !customerId" class="empty-message">
+    <p>Please login to view wishlisted products.</p>
+  </div>
+
+  <!-- Empty wishlist message -->
+  <div x-show="!loading && wishlistedProducts.length === 0 && customerId" class="empty-message">
+    <p>Your wishlist is empty.</p>
+  </div>
+
+  <!-- Wishlisted products with detailed product information -->
+  <div x-show="!loading && wishlistedProducts.length > 0 && customerId" class="wishlist-products">
+    <template x-for="product in wishlistedProducts" :key="product.id">
+      <div class="wishlist-product">
+        <!-- Product Image -->
+        <img :src="product.image" alt="" class="product-image" x-show="product.image">
+        
+        <!-- Product Title -->
+        <h3 class="product-title" x-text="product.title"></h3>
+
+        <!-- Product Price -->
+        <div class="product-price" x-text="product.price"></div>
+
+        <!-- Date Added -->
+        <!-- <p><strong>Added on:</strong> <span x-text="new Date(product.createdAt).toLocaleString()"></span></p> -->
+
+        <!-- Remove from Wishlist Button -->
+        <button @click="removeFromWishlist(product.productId)" class="remove-button">x</button>
+      </div>
+    </template>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<script>
+      {%  unless customer  %}
+        // If customer is not login, show an alert to login
+        alert('Please login to view wishlisted products');
+        // window.open("{{ shop.permanent_domain }}/account", "_self");
+        // return;
+      {% endunless %}
+
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('wishlistPage', () => ({
+      wishlistedProducts: [],
+      loading: true,
+      customerId: "{{ customer.id }}",
+      shop: "{{ shop.permanent_domain }}",
+      appUrl: "https://wishlist-app-1.onrender.com/",
+
+      async init() {
+        try {
+          // Fetch wishlist data
+          const response = await fetch(`${this.appUrl}api/getWishlist?customerId=${this.customerId}&shop=${this.shop}`);
+          const data = await response.json();
+          if (data.ok) {
+            this.wishlistedProducts = await Promise.all(
+              data.data.map(async (item) => {
+                const productDetails = await this.fetchProductDetails(item.productId);
+                return {
+                  ...item,
+                  title: productDetails.title,
+                  image: productDetails.image,
+                  price: productDetails.price,
+                  productId: item.productId
+                };
+              })
+            );
+          }
+        } catch (error) {
+          console.log("Error fetching wishlist:", error);
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      async fetchProductDetails(productId) {
+        const storefrontUrl = `https://${this.shop}/api/2024-10/graphql.json`;
+        const query = `
+          query($id: ID!) {
+            product(id: $id) {
+              title
+              featuredImage {
+                url
+              }
+              priceRange {
+                minVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        `;
+
+        try {
+          const response = await fetch(storefrontUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Storefront-Access-Token": "42d1fdcff8baccc81fe5d4fb1f98b4d9",
+            },
+            body: JSON.stringify({ query, variables: { id: `gid://shopify/Product/${productId}` } }),
+          });
+
+          const result = await response.json();
+          if (result.data.product) {
+            const product = result.data.product;
+            return {
+              title: product.title,
+              image: product.featuredImage?.url || '',
+              price: `${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`,
+            };
+          } else {
+            return { title: "Product not available", image: "", price: "" };
+          }
+        } catch (error) {
+          console.log("Error fetching product details:", error);
+          return { title: "Error fetching details", image: "", price: "" };
+        }
+      },
+
+      async removeFromWishlist(wishlistId) {
+        try {
+          const formdata = new FormData();
+          formdata.append("customerId", "{{ customer.id }}");
+          formdata.append("productId", wishlistId);
+          formdata.append("shop", "{{ shop.permanent_domain }}");
+          // formdata.append("wishlistId", wishlistId);
+          formdata.append("_action", "DELETE");
+
+          const response = await fetch(`${this.appUrl}api/getWishlist`, {
+            method: 'POST',
+            body: formdata,
+          });
+
+          const result = await response.json();
+          console.log("delt result",result);
+          if (result.message == "Product removed from your wishlist") {
+            this.wishlistedProducts = this.wishlistedProducts.filter(product => product.productId !== wishlistId);
+          }
+        } catch (error) {
+          console.log("Error removing from wishlist:", error);
+        }
+      },
+    }));
+  });
+</script>
+
+
+{% endif %}
