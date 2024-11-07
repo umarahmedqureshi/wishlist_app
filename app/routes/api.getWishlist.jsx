@@ -41,3 +41,60 @@ export async function loader({ request }) {
         });
     }
 }
+
+export async function action({ request }) {
+    // const method = request.method;
+    let data = await request.formData();
+    data = Object.fromEntries(data);
+    const customerId = data.customerId;
+    const productId = data.productId;
+    const shop = data.shop;
+    const _action = data._action;
+
+    if(!customerId || !productId || !shop || !_action){
+        return json({
+            message: "Missing data. Required data: CustomerId, productId, shop, _action",
+            method: _action
+        })
+    }
+
+    let response;
+
+    switch (_action) {
+        case "CREATE":
+
+            // Handle POST request logic here
+            // For example, adding a nrew item to the wishlist
+            const wishlist = await db.wishlist.create({
+                data: {
+                    customerId,
+                    productId,
+                    shop,
+                },
+            });
+
+            response = json({ message: "Product added to wishlist", method: _action, wishlisted: true });
+            return cors(request, response);
+        case "PATCH":
+            // Handle PATCH request logic here
+            // For example, updating an existing item in the wishlist  
+            return json({ message: "Success", method: "PATCH"});
+
+        case "DELETE":
+            // Handle DELETE request logic here (Not tested)
+            // For example, removing an item from the wishlist
+            await db.wishlist.deleteMany({
+                where: {
+                    customerId: customerId,
+                    productId: productId,
+                    shop: shop,
+                },
+            });
+            response = json({ message: "Product removed from your wishlist", method: _action, wishlisted: false });
+            return cors(request, response);
+
+        default:
+            // Optional: handle other methods or return a method not allowed response
+            return new Response("Method Not Allowed", { status: 405 });
+    }
+}
